@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Explore Philippines Map — Admin</title>
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1020;--panel:#11182b;--panel2:#0e1526;--line:#24304a;--text:#eef2ff;--muted:#9aa7bd;--accent:#7c9cff;--good:#34d399;--warn:#fbbf24;--danger:#fb7185}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#17213a 0,#0b1020 42%,#070b15 100%);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input{font:inherit}
+    .shell{width:min(1180px,calc(100% - 28px));margin:0 auto;padding:34px 0 50px}
+    .login-wrap{min-height:100vh;display:grid;place-items:center;padding:22px}
+    .login-card{width:min(420px,100%);background:rgba(17,24,43,.9);border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 24px 70px rgba(0,0,0,.35);backdrop-filter:blur(16px)}
+    .eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:750}
+    h1,h2,h3{margin:0} h1{font-size:28px;letter-spacing:-.03em} h2{font-size:18px} h3{font-size:15px}
+    .sub{color:var(--muted);margin:7px 0 22px}
+    label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 7px}
+    input{width:100%;height:46px;padding:0 13px;border-radius:12px;border:1px solid var(--line);background:#0a1020;color:var(--text);outline:none}
+    input:focus{border-color:#6685ff;box-shadow:0 0 0 3px rgba(102,133,255,.13)}
+    .btn{border:0;border-radius:12px;height:46px;padding:0 16px;font-weight:750;cursor:pointer}
+    .primary{width:100%;margin-top:18px;background:#6d8cff;color:white}.secondary{background:transparent;color:var(--muted);border:1px solid var(--line)}
+    .error{min-height:20px;margin-top:10px;color:var(--danger);font-size:12px}
+    .top{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:20px}
+    .top-actions{display:flex;align-items:center;gap:10px}.refresh{color:var(--muted);font-size:12px}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+    .stat,.panel{background:rgba(17,24,43,.82);border:1px solid var(--line);border-radius:17px}
+    .stat{padding:17px}.stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:750}.stat .num{font-size:27px;font-weight:800;margin-top:4px}
+    .grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.panel{padding:17px;min-width:0}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pill{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 8px}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.table{width:100%;border-collapse:collapse;min-width:620px}.table th,.table td{padding:10px 11px;border-bottom:1px solid rgba(36,48,74,.65);text-align:left;white-space:nowrap}.table th{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:#0d1425;position:sticky;top:0}.table tr:last-child td{border-bottom:0}.name{font-weight:750}.muted{color:var(--muted)}.status{display:inline-flex;align-items:center;gap:6px}.dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px rgba(52,211,153,.1)}.dot.warn{background:var(--warn);box-shadow:0 0 0 3px rgba(251,191,36,.1)}
+    .empty{padding:30px;text-align:center;color:var(--muted)}.activity{display:grid;gap:8px;max-height:470px;overflow:auto}.event{padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(10,16,32,.55)}.event-top{display:flex;justify-content:space-between;gap:10px}.event-name{font-weight:750}.event-type{font-size:11px;color:var(--accent);margin-top:3px}.event-time{font-size:11px;color:var(--muted);white-space:nowrap}.foot{margin-top:16px;color:var(--muted);font-size:11px;text-align:right}
+    @media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+    @media(max-width:520px){.shell{width:min(100% - 18px,1180px);padding-top:20px}.top{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.stat{padding:14px}.stat .num{font-size:23px}.panel{padding:12px}}
+  </style>
+</head>
+<body>
+  <main id="login" class="login-wrap">
+    <form id="login-form" class="login-card" autocomplete="on">
+      <div class="eyebrow">Explore Philippines Map</div>
+      <h1 style="margin-top:5px">Admin dashboard</h1>
+      <p class="sub">Private access for the project owner.</p>
+      <label for="username">Username</label>
+      <input id="username" name="username" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button class="btn primary" type="submit">Sign in</button>
+      <div id="login-error" class="error" aria-live="polite"></div>
+    </form>
+  </main>
+
+  <main id="dashboard" class="shell" hidden>
+    <header class="top">
+      <div>
+        <div class="eyebrow">Private admin</div>
+        <h1 style="margin-top:4px">Live user activity</h1>
+        <div class="sub" style="margin-bottom:0">Online status is based on the existing 30-second heartbeat and 90-second online window.</div>
+      </div>
+      <div class="top-actions">
+        <span id="refresh-label" class="refresh">Waiting for data…</span>
+        <button id="logout" class="btn secondary" type="button">Log out</button>
+      </div>
+    </header>
+
+    <section class="stats" aria-label="Statistics">
+      <div class="stat"><div class="label">Online now</div><div id="stat-online" class="num">—</div></div>
+      <div class="stat"><div class="label">Total users</div><div id="stat-users" class="num">—</div></div>
+      <div class="stat"><div class="label">Active today</div><div id="stat-today" class="num">—</div></div>
+      <div class="stat"><div class="label">Quizzes completed</div><div id="stat-quizzes" class="num">—</div></div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="panel-head"><h2>🟢 Online now</h2><span id="online-pill" class="pill">0 users</span></div>
+        <div id="online-table"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Recent activity</h2><span class="pill">latest 100</span></div>
+        <div id="events" class="activity"></div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:18px">
+      <div class="panel-head"><h2>All users</h2><span id="users-pill" class="pill">0 users</span></div>
+      <div id="users-table"></div>
+    </section>
+
+    <div class="foot">All times shown in Asia/Manila (Philippine time).</div>
+  </main>
+
+<script>
+(() => {
+  "use strict";
+
+  const SUPABASE_URL = "https://xuyloityloubslngdstf.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_wRdwuXCTyWzHGFubTi-8fw_nsQtGeVA";
+  const TOKEN_KEY = "pmm-admin-token-v2";
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  let token = null;
+  let refreshTimer = null;
+
+  const $ = id => document.getElementById(id);
+  const esc = value => String(value ?? "").replace(/[&<>'"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[ch]));
+  const phTime = value => {
+    if (!value) return "—";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return esc(value);
+    return new Intl.DateTimeFormat("en-PH", {timeZone:"Asia/Manila",month:"short",day:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true}).format(d);
+  };
+  const modeLabel = value => {
+    const map = {pin:"Map Pinning",type:"Type Mode",guess_region:"Guess the Region",marathon:"PH Marathon",quiz:"Quiz",explore:"Explore"};
+    return map[value] || value || "—";
+  };
+  const rel = row => row?.last_seen_rel || (row?.seconds_ago != null ? `${row.seconds_ago}s ago` : "—");
+
+  function showLogin(message="") {
+    if (refreshTimer) clearInterval(refreshTimer);
+    token = null;
+    sessionStorage.removeItem(TOKEN_KEY);
+    $("dashboard").hidden = true;
+    $("login").style.display = "grid";
+    $("login-error").textContent = message;
+    $("password").value = "";
+  }
+
+  function showDashboard() {
+    $("login").style.display = "none";
+    $("dashboard").hidden = false;
+  }
+
+  async function login(username, password) {
+    const {data, error} = await client.rpc("pmm_admin_login", {p_username: username, p_password: password});
+    if (error || !data?.token) throw new Error("Invalid username or password.");
+    token = data.token;
+    sessionStorage.setItem(TOKEN_KEY, token);
+    showDashboard();
+    await refresh();
+    refreshTimer = setInterval(refresh, 10000);
+  }
+
+  async function refresh() {
+    if (!token) return;
+    const {data, error} = await client.rpc("pmm_admin_dashboard", {p_token: token});
+    if (error || !data) {
+      showLogin("Your admin session expired. Please sign in again.");
+      return;
+    }
+    render(data);
+    $("refresh-label").textContent = `Updated ${phTime(new Date().toISOString())}`;
+  }
+
+  function render(data) {
+    const stats = data.stats || {};
+    const online = Array.isArray(data.online) ? data.online : [];
+    const users = Array.isArray(data.users) ? data.users : [];
+    const events = Array.isArray(data.events) ? data.events : [];
+
+    $("stat-online").textContent = stats.online_now ?? online.length;
+    $("stat-users").textContent = stats.total_users ?? users.length;
+    $("stat-today").textContent = stats.active_today ?? "0";
+    $("stat-quizzes").textContent = stats.total_quizzes_completed ?? "0";
+    $("online-pill").textContent = `${online.length} user${online.length === 1 ? "" : "s"}`;
+    $("users-pill").textContent = `${users.length} user${users.length === 1 ? "" : "s"}`;
+
+    $("online-table").innerHTML = online.length ? `
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>User</th><th>Status</th><th>Mode</th><th>Last seen</th></tr></thead>
+        <tbody>${online.map(u => `
+          <tr><td class="name">${esc(u.name)}</td>
+          <td><span class="status"><span class="dot ${u.status?.includes("recent") ? "warn" : ""}"></span>${esc(u.status || "online")}</span></td>
+          <td>${esc(modeLabel(u.mode))}</td><td>${esc(rel(u))}</td></tr>`).join("")}</tbody>
+      </table></div>` : `<div class="empty">No one is online right now.</div>`;
+
+    $("users-table").innerHTML = users.length ? `
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>User</th><th>Status</th><th>Mode</th><th>Last seen</th><th>Sessions</th><th>Quizzes</th></tr></thead>
+        <tbody>${users.map(u => `
+          <tr><td class="name">${esc(u.name)}</td><td>${esc(u.status || "—")}</td><td>${esc(modeLabel(u.mode))}</td><td title="${esc(phTime(u.last_seen))}">${esc(u.last_seen_rel || phTime(u.last_seen))}</td><td>${esc(u.sessions)}</td><td>${esc(u.quizzes_done)}</td></tr>`).join("")}</tbody>
+      </table></div>` : `<div class="empty">No users recorded yet.</div>`;
+
+    $("events").innerHTML = events.length ? events.map(e => `
+      <article class="event">
+        <div class="event-top"><span class="event-name">${esc(e.name)}</span><span class="event-time">${esc(e.time_ph || phTime(e.created_at))}</span></div>
+        <div class="event-type">${esc(e.event_type)}${e.mode ? ` · ${esc(modeLabel(e.mode))}` : ""}</div>
+      </article>`).join("") : `<div class="empty">No activity yet.</div>`;
+  }
+
+  $("login-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    $("login-error").textContent = "";
+    const button = e.currentTarget.querySelector("button[type=submit]");
+    button.disabled = true;
+    button.textContent = "Signing in…";
+    try {
+      await login($("username").value.trim(), $("password").value);
+    } catch (err) {
+      $("login-error").textContent = err.message || "Unable to sign in.";
+    } finally {
+      button.disabled = false;
+      button.textContent = "Sign in";
+    }
+  });
+
+  $("logout").addEventListener("click", async () => {
+    if (token) await client.rpc("pmm_admin_logout", {p_token: token});
+    showLogin("");
+  });
+
+  const saved = sessionStorage.getItem(TOKEN_KEY);
+  if (saved) {
+    token = saved;
+    showDashboard();
+    refresh().then(() => {
+      if (token) refreshTimer = setInterval(refresh, 10000);
+    });
+  }
+})();
+</script>
+</body>
+</html>
