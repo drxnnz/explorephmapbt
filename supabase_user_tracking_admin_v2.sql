@@ -374,7 +374,6 @@ comment on view public.pmm_v_stats is 'Single-row overview: online now, totals, 
 -- Manual presence cleanup:
 --   select public.pmm_cleanup_presence();
 -- =============================================================================
-)
 
 -- -----------------------------------------------------------------------------
 -- 7) Private admin dashboard authentication
